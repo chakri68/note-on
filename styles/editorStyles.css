@@ -1,0 +1,14 @@
+@import "quill/dist/quill.core.css";
+@import "quill/dist/quill.snow.css";
+/* Tell Quill not to scroll */
+.editorWrapper.note-body {
+  height: 100%;
+  overflow-y: auto;
+}
+
+/* Specify our own scrolling container */
+/* .scrolling-container {
+  height: 100%;
+  min-height: 100%;
+  overflow-y: auto;
+} */
