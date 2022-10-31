@@ -2,6 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS HEX */
+:root {
+  --grey: #494947ff;
+  --green: #35ff69ff;
+  --blue: #44ccffff;
+  --dark-blue: #7494eaff;
+  --beige-like: #ebd4cbff;
+
+  /* CSS HSL */
+  --davys-grey: hsla(60, 1%, 28%, 1);
+  --screamin-green: hsla(135, 100%, 60%, 1);
+  --vivid-sky-blue: hsla(196, 100%, 63%, 1);
+  --cornflower-blue: hsla(224, 74%, 69%, 1);
+  --champagne-pink: hsla(17, 44%, 86%, 1);
+}
+
 html,
 body {
   padding: 0;
