@@ -24,6 +24,8 @@ const StyledToolbar = styled(ToolbarPrimitive.Root, {
   boxShadow: `0 2px 10px ${blackA.blackA7}`,
   maxWidth: "600px",
   position: "relative", // To ensure that Z-Index works
+  msTouchAction: "none",
+  touchAction: "none",
   zIndex: "999",
 });
 

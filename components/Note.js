@@ -3,12 +3,22 @@ import React from "react";
 import { useEffect, useRef, Suspense } from "react";
 import { Card } from "semantic-ui-react";
 import dynamic from "next/dynamic";
-import { styled } from "@stitches/react";
+import { createStitches } from "@stitches/react";
+
+export const { styled, css } = createStitches({
+  media: {
+    bp1: "(min-width: 640px)",
+    bp2: "(min-width: 768px)",
+    bp3: "(min-width: 1024px)",
+  },
+});
 
 const MoveDiv = styled("div", {
   width: "100%",
   position: "absolute",
   top: 0,
+  msTouchAction: "none",
+  touchAction: "none",
   ":active": {
     height: "100%",
     opacity: 0,
@@ -24,10 +34,20 @@ const MoveDiv = styled("div", {
 const HoverCard = styled(Card, {
   zIndex: "initial !important",
   position: "relative !important",
-  padding: "20px 5px 10px 5px !important",
+  padding: "20px 10px 10px 10px !important",
   display: "grid !important",
   gridTemplateRows: "max-content minmax(0, 1fr)",
   gap: "5px 0px",
+  "@bp1": {
+    msTouchAction: "none",
+    touchAction: "none",
+    padding: "60px 5px 10px 5px !important",
+  },
+
+  // "*": {
+  //   msTouchAction: "none",
+  //   touchAction: "none",
+  // },
   ".content": {
     height: "100%",
     padding: "0 !important",
@@ -38,12 +58,19 @@ const HoverCard = styled(Card, {
   ".moveBar": {
     backgroundColor: "violet",
     height: "100%",
+
     opacity: 0,
   },
   "&:focus-within": {
     zIndex: "999 !important",
     ".moveBar": {
       height: "20px",
+      "@bp1": {
+        height: "60px",
+        msTouchAction: "none",
+        touchAction: "none",
+        padding: "60px 5px 10px 5px !important",
+      },
       zIndex: "initial",
     },
   },
