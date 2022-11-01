@@ -5,11 +5,11 @@ import { Card } from "semantic-ui-react";
 import dynamic from "next/dynamic";
 import { createStitches } from "@stitches/react";
 
-export const { styled, css } = createStitches({
+const { styled, css } = createStitches({
   media: {
-    bp1: "(min-width: 640px)",
-    bp2: "(min-width: 768px)",
-    bp3: "(min-width: 1024px)",
+    bp1: "(max-width: 640px)",
+    bp2: "(max-width: 768px)",
+    bp3: "(max-width: 1024px)",
   },
 });
 
@@ -17,15 +17,17 @@ const MoveDiv = styled("div", {
   width: "100%",
   position: "absolute",
   top: 0,
-  msTouchAction: "none",
-  touchAction: "none",
+  "@bp3": {
+    msTouchAction: "none",
+    touchAction: "none",
+  },
   ":active": {
-    height: "100%",
-    opacity: 0,
+    height: "100% !important",
+    opacity: 1,
     zIndex: "1000",
   },
   ":hover": {
-    height: "100%",
+    height: "100% !important",
     opacity: 0,
     zIndex: "1000",
   },
@@ -38,10 +40,10 @@ const HoverCard = styled(Card, {
   display: "grid !important",
   gridTemplateRows: "max-content minmax(0, 1fr)",
   gap: "5px 0px",
-  "@bp1": {
+  "@bp3": {
+    padding: "60px 10px 10px 10px !important",
     msTouchAction: "none",
     touchAction: "none",
-    padding: "60px 5px 10px 5px !important",
   },
 
   // "*": {
@@ -65,11 +67,10 @@ const HoverCard = styled(Card, {
     zIndex: "999 !important",
     ".moveBar": {
       height: "20px",
-      "@bp1": {
+      "@bp3": {
         height: "60px",
         msTouchAction: "none",
         touchAction: "none",
-        padding: "60px 5px 10px 5px !important",
       },
       zIndex: "initial",
     },
