@@ -1,4 +1,5 @@
 // TODO: Restrict the resizeability of the note
+// TODO: Resizeable moveBar
 
 import interact from "interactjs";
 import React from "react";
@@ -176,6 +177,7 @@ const Note = React.memo(function MemoNote({ id }) {
             className="note-title"
             placeholder="Title"
             toolbar={false}
+            camouflage={true}
           />
         </Card.Header>
         <Card.Content>
