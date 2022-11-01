@@ -11,6 +11,8 @@
 - Allow creation of gists from the notes
 - New styles for the note - cards
 - New animations (using framer-js)
+- Add better resize options (increase size on hover)
+- Add hover labels to buttons in tool bar
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
