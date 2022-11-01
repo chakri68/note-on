@@ -1,3 +1,17 @@
+# note-onn
+
+## Take notes anywhere with ease
+
+### Features to be implemented
+
+- Option to save the notes
+- Option to delete the notes
+- Connect to a database and allow saving notes
+- Auth using github oAuth
+- Allow creation of gists from the notes
+- New styles for the note - cards
+- New animations (using framer-js)
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
