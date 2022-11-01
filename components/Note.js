@@ -4,9 +4,10 @@
 import interact from "interactjs";
 import React from "react";
 import { useEffect, useRef, Suspense } from "react";
-import { Card } from "semantic-ui-react";
+import { Button, Card, Container } from "semantic-ui-react";
 import dynamic from "next/dynamic";
 import { createStitches } from "@stitches/react";
+import Modal from "./Modal";
 
 const { styled, css } = createStitches({
   media: {
@@ -84,14 +85,17 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
   ssr: false,
 });
 
-const Note = React.memo(function MemoNote({ id }) {
-  let resizeDivHeights = { noResize: 30, duringResize: 50 };
+const Note = React.memo(function MemoNote({ id, onDelete }) {
+  let divHeights = {
+    resizeDivHeights: { noResize: 30, duringResize: 50 },
+    deleteDivHeights: { noDelete: 25, duringDelete: 30 },
+  };
 
   const ResizeBtn = styled("div", {
     "&.resizeBtn.moreSpecific": {
       borderRadius: "50% !important",
       transform: "translate(50%, 50%)",
-      height: resizeDivHeights.noResize + "px",
+      height: divHeights.resizeDivHeights.noResize + "px",
       aspectRatio: 1,
       position: "absolute",
       bottom: 0,
@@ -103,9 +107,32 @@ const Note = React.memo(function MemoNote({ id }) {
     },
   });
 
+  const DeleteBtn = styled("button", {
+    "&.deleteBtn.moreSpecific": {
+      borderRadius: "50% !important",
+      transform: "translate(50%, -50%)",
+      height: divHeights.deleteDivHeights.noDelete + "px",
+      aspectRatio: 1,
+      position: "absolute",
+      top: 0,
+      right: 0,
+      zIndex: 100,
+      transition: "height 100ms",
+      objectFit: "cover",
+      objectPosition: "center",
+    },
+    "&.deleteBtn.moreSpecific:hover": {
+      height: divHeights.deleteDivHeights.duringDelete + "px",
+    },
+  });
+
   let noteElement = useRef();
 
   let position = { x: 0, y: 0 };
+
+  function handleDelete() {
+    onDelete(id);
+  }
 
   useEffect(() => {
     let interactable = interact(`#${id}`)
@@ -153,12 +180,12 @@ const Note = React.memo(function MemoNote({ id }) {
     interactable.on("resizestart", (event) => {
       event.target.style.zIndex = "initial";
       document.querySelector(".resizeBtn.moreSpecific").style.height =
-        resizeDivHeights.duringResize + "px";
+        divHeights.resizeDivHeights.duringResize + "px";
     });
     interactable.on("resizeend", (event) => {
       event.target.style.zIndex = "initial";
       document.querySelector(".resizeBtn.moreSpecific").style.height =
-        resizeDivHeights.noResize + "px";
+        divHeights.resizeDivHeights.noResize + "px";
     });
   }, []);
 
@@ -188,6 +215,35 @@ const Note = React.memo(function MemoNote({ id }) {
           />
         </Card.Content>
       </Suspense>
+      <Modal
+        openTrigger={
+          <DeleteBtn tabIndex="0" className="deleteBtn moreSpecific">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              x="0"
+              y="0"
+              enableBackground="new 0 0 512 512"
+              version="1.1"
+              viewBox="0 0 512 512"
+              xmlSpace="preserve"
+            >
+              <path
+                fill="#CEE8FA"
+                d="M104.923 191.732H407.086V496.256H104.923z"
+              ></path>
+              <g fill="#2D527C">
+                <path d="M180.066 413.377c-8.69 0-15.738-7.047-15.738-15.738V296.918c0-8.69 7.047-15.738 15.738-15.738s15.738 7.047 15.738 15.738v100.721c-.001 8.69-7.048 15.738-15.738 15.738zM256 413.377c-8.69 0-15.738-7.047-15.738-15.738V296.918c0-8.69 7.047-15.738 15.738-15.738 8.69 0 15.738 7.047 15.738 15.738v100.721c0 8.69-7.048 15.738-15.738 15.738zM331.934 413.377c-8.69 0-15.738-7.047-15.738-15.738V296.918c0-8.69 7.047-15.738 15.738-15.738s15.738 7.047 15.738 15.738v100.721c0 8.69-7.047 15.738-15.738 15.738z"></path>
+                <path d="M395.935 73.706c-8.69 0-15.738 7.047-15.738 15.738s7.047 15.738 15.738 15.738c18.295 0 33.18 14.885 33.18 33.18v37.64H82.886v-37.64c0-18.295 14.885-33.18 33.18-33.18h163.541c8.69 0 15.738-7.047 15.738-15.738s-7.047-15.738-15.738-15.738h-92.852v-42.23h138.492v57.968c0 8.69 7.047 15.738 15.738 15.738s15.738-7.047 15.738-15.738V15.738c0-8.69-7.047-15.738-15.738-15.738H171.017c-8.69 0-15.738 7.047-15.738 15.738v57.968h-39.214c-35.651 0-64.655 29.005-64.655 64.655v53.377c0 8.69 7.047 15.738 15.738 15.738h22.034v288.786c0 8.69 7.047 15.738 15.738 15.738h302.16c8.69 0 15.738-7.047 15.738-15.738V207.476h22.034c8.69 0 15.738-7.047 15.738-15.738v-53.377c0-35.651-29.005-64.655-64.655-64.655zm-4.593 406.819H120.658V207.476h270.685v273.049z"></path>
+              </g>
+            </svg>
+          </DeleteBtn>
+        }
+        closeTrigger={<Button negative>delete</Button>}
+        title="Are you sure?"
+        body={<Container>Are you sure you want to delete the note?</Container>}
+        onClick={handleDelete}
+      />
+
       <ResizeBtn tabIndex="0" className="resizeBtn moreSpecific">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <path
