@@ -1,3 +1,5 @@
+// TODO: Restrict the resizeability of the note
+
 import interact from "interactjs";
 import React from "react";
 import { useEffect, useRef, Suspense } from "react";
@@ -82,6 +84,24 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
 });
 
 const Note = React.memo(function MemoNote({ id }) {
+  let resizeDivHeights = { noResize: 30, duringResize: 50 };
+
+  const ResizeBtn = styled("div", {
+    "&.resizeBtn.moreSpecific": {
+      borderRadius: "50% !important",
+      transform: "translate(50%, 50%)",
+      height: resizeDivHeights.noResize + "px",
+      aspectRatio: 1,
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      zIndex: 100,
+      transition: "height 100ms",
+      objectFit: "cover",
+      objectPosition: "center",
+    },
+  });
+
   let noteElement = useRef();
 
   let position = { x: 0, y: 0 };
@@ -129,6 +149,16 @@ const Note = React.memo(function MemoNote({ id }) {
     interactable.on("dragend", (event) => {
       event.target.style.zIndex = "initial";
     });
+    interactable.on("resizestart", (event) => {
+      event.target.style.zIndex = "initial";
+      document.querySelector(".resizeBtn.moreSpecific").style.height =
+        resizeDivHeights.duringResize + "px";
+    });
+    interactable.on("resizeend", (event) => {
+      event.target.style.zIndex = "initial";
+      document.querySelector(".resizeBtn.moreSpecific").style.height =
+        resizeDivHeights.noResize + "px";
+    });
   }, []);
 
   return (
@@ -156,6 +186,19 @@ const Note = React.memo(function MemoNote({ id }) {
           />
         </Card.Content>
       </Suspense>
+      <ResizeBtn tabIndex="0" className="resizeBtn moreSpecific">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path
+            fill="#001A72"
+            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            opacity="0.15"
+          ></path>
+          <path
+            fill="#001A72"
+            d="M14.47 10.53a.75.75 0 101.06-1.06l-1.06 1.06zM12 7l.53-.53a.75.75 0 00-1.06 0L12 7zM8.47 9.47a.75.75 0 101.06 1.06L8.47 9.47zm1.06 4a.75.75 0 00-1.06 1.06l1.06-1.06zM12 17l-.53.53a.75.75 0 001.06 0L12 17zm3.53-2.47a.75.75 0 10-1.06-1.06l1.06 1.06zm0-5.06l-3-3-1.06 1.06 3 3 1.06-1.06zm-4.06-3l-3 3 1.06 1.06 3-3-1.06-1.06zm-3 8.06l3 3 1.06-1.06-3-3-1.06 1.06zm4.06 3l3-3-1.06-1.06-3 3 1.06 1.06zM20.25 12A8.25 8.25 0 0112 20.25v1.5c5.385 0 9.75-4.365 9.75-9.75h-1.5zM12 20.25A8.25 8.25 0 013.75 12h-1.5c0 5.385 4.365 9.75 9.75 9.75v-1.5zM3.75 12A8.25 8.25 0 0112 3.75v-1.5c-5.385 0-9.75 4.365-9.75 9.75h1.5zM12 3.75A8.25 8.25 0 0120.25 12h1.5c0-5.385-4.365-9.75-9.75-9.75v1.5z"
+          ></path>
+        </svg>
+      </ResizeBtn>
     </HoverCard>
   );
 });
