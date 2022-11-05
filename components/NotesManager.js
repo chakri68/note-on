@@ -10,7 +10,13 @@ export default function NotesManager() {
   }
   return (
     <div className={`notes-manager ${styles.notesManager}`}>
-      <NotesToolbar handleAddNote={addNote} />
+      <NotesToolbar
+        handleAddNote={addNote}
+        onDelete={(id) => console.log({ id })}
+        onSave={(id) => {
+          console.log({ id });
+        }}
+      />
       {notes.map((note) => {
         return <Note key={note.id} id={note.id} />;
       })}
