@@ -1,3 +1,6 @@
+// TODO: Restrict the resizeability of the note
+// TODO: Resizeable moveBar
+
 import interact from "interactjs";
 import React from "react";
 import { useEffect, useRef, Suspense } from "react";
