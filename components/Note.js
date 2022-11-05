@@ -179,15 +179,18 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
       <Suspense fallback={`Loading...`}>
         <Card.Header>
           <DynamicEditor
-            id={id}
+            id={`${id}-note-title`}
+            selector={`#${id}-note-title`}
             className="note-title"
             placeholder="Title"
             toolbar={false}
+            camouflage={true}
           />
         </Card.Header>
         <Card.Content>
           <DynamicEditor
-            id={id}
+            id={`${id}-note-body`}
+            selector={`#${id}-note-body`}
             className="note-body scrolling-container"
             scrollContainer={`#${id}.scrolling-container`}
           />

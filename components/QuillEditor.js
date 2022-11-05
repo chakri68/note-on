@@ -1,3 +1,4 @@
+import { styled } from "@stitches/react";
 import Quill from "quill";
 import { useEffect, useRef } from "react";
 
@@ -9,14 +10,25 @@ export default function QuillEditor({
   theme = "snow",
   readOnly = false,
   className,
+  camouflage = false,
+  selector,
   ...props
 }) {
   const quillEditor = useRef(null);
 
+  const CamoQuillWrapper = styled("div", {
+    border: "none !important",
+    ":focus": {
+      border: "1px solid #ccc !important",
+    },
+  });
+  const QuillWrapper = styled("div", {
+    border: "1px solid #ccc !important",
+  });
+
   useEffect(() => {
     if (quillEditor.current == null) {
-      console.log("CREATED QUILL EDITOR");
-      quillEditor.current = new Quill(`#${id} .${className.split(" ")[0]}`, {
+      quillEditor.current = new Quill(selector, {
         readOnly: readOnly,
         placeholder: placeholder,
         theme: theme,
@@ -25,6 +37,14 @@ export default function QuillEditor({
         },
       });
     }
-  }, []);
-  return <div {...props} className={`editorWrapper ${className}`}></div>;
+  }, [placeholder, readOnly, selector, theme, toolbar]);
+  return camouflage ? (
+    <CamoQuillWrapper
+      id={id}
+      {...props}
+      className={`editorWrapper ${className}`}
+    />
+  ) : (
+    <QuillWrapper id={id} {...props} className={`editorWrapper ${className}`} />
+  );
 }
