@@ -105,19 +105,21 @@ const Box = styled("div", {});
 const Notification = ({
   icon = false,
   labelPosition = "left",
-  onTrigger,
+  onTrigger = () => {},
   buttonText,
+  callback = () => {},
   toast = {
     title: "TITLE",
     description: "DESCRIPTION",
     actionBtn: <Button>Action Btn</Button>,
   },
+  duration = 5000,
   ...props
 }) => {
   const [open, setOpen] = React.useState(false);
   let [running, setRunning] = React.useState(false);
-  const eventDateRef = React.useRef(new Date());
   const timerRef = React.useRef(0);
+  const openRef = React.useRef(0);
 
   React.useEffect(() => {
     return () => clearTimeout(timerRef.current);
@@ -134,22 +136,26 @@ const Notification = ({
           setOpen(false);
           setRunning(true);
           await onTrigger();
+          setRunning(false);
           window.clearTimeout(timerRef.current);
+          window.clearTimeout(openRef.current);
           timerRef.current = window.setTimeout(() => {
-            eventDateRef.current = oneWeekAway();
             setOpen(true);
           }, 100);
-          setRunning(false);
+          openRef.current = window.setTimeout(() => {
+            console.log("CALLBACK");
+            callback();
+          }, duration);
         }}
       >
         {icon}
         {buttonText}
       </Button>
 
-      <Toast open={open} onOpenChange={setOpen}>
+      <Toast open={open} onOpenChange={setOpen} duration={duration}>
         <ToastTitle>{toast.title}</ToastTitle>
         <ToastDescription asChild>{toast.description}</ToastDescription>
-        <ToastAction asChild altText="Goto schedule to undo">
+        <ToastAction asChild altText="Undo the save">
           {toast.actionBtn}
         </ToastAction>
       </Toast>
@@ -159,18 +165,5 @@ const Notification = ({
     </>
   );
 };
-
-function oneWeekAway(date) {
-  const now = new Date();
-  const inOneWeek = now.setDate(now.getDate() + 7);
-  return new Date(inOneWeek);
-}
-
-function prettyDate(date) {
-  return new Intl.DateTimeFormat("en-US", {
-    dateStyle: "full",
-    timeStyle: "short",
-  }).format(date);
-}
 
 export default Notification;

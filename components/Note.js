@@ -105,6 +105,7 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
 
 const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
   let editorContent = useRef({});
+  let pvSave = useRef({});
 
   function setTitleEditor(quillInstance) {
     editorContent.current["title"] = quillInstance;
@@ -143,7 +144,25 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
     onDelete(id);
   }
 
+  function handlePvSave() {
+    pvSave.current = {
+      editor: {
+        title: editorContent.current.title.getContents(),
+        body: editorContent.current.body.getContents(),
+      },
+      positions: {
+        ...position,
+        ...size,
+      },
+    };
+  }
+
+  async function handleUndo() {
+    await onSave(pvSave.current, id);
+  }
+
   async function handleNoteSave() {
+    console.log("SAVE");
     await onSave(
       {
         editor: {
@@ -276,10 +295,11 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
                     icon={<Icon name="save" />}
                     labelPosition="left"
                     onTrigger={handleNoteSave}
+                    callback={handlePvSave}
                     toast={{
                       title: "Saved!",
                       description: "Saved Successfully",
-                      actionBtn: <Button>Undo</Button>,
+                      actionBtn: <Button onClick={handleUndo}>Undo</Button>,
                     }}
                   />
                 </Grid.Column>
