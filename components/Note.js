@@ -104,6 +104,15 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
 });
 
 const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
+  let editorContent = useRef({});
+
+  function setTitleEditor(quillInstance) {
+    editorContent.current["title"] = quillInstance;
+  }
+  function setBodyEditor(quillInstance) {
+    editorContent.current["body"] = quillInstance;
+  }
+
   let divHeights = {
     resizeDivHeights: { noResize: 30, duringResize: 50 },
     deleteDivHeights: { noDelete: 25, duringDelete: 30 },
@@ -128,19 +137,26 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
   let noteElement = useRef();
 
   let position = { x: 0, y: 0 };
+  let size = { width: 0, height: 0 };
 
   function handleDelete() {
     onDelete(id);
   }
 
   async function handleNoteSave() {
-    await onSave(id);
-    // setIconName("check");
-    // setSaveBtnText("Saved..");
-    // setTimeout(() => {
-    //   setIconName("save");
-    //   setSaveBtnText("Save");
-    // }, 2000);
+    await onSave(
+      {
+        editor: {
+          title: editorContent.current.title.getContents(),
+          body: editorContent.current.body.getContents(),
+        },
+        positions: {
+          ...position,
+          ...size,
+        },
+      },
+      id
+    );
   }
 
   useEffect(() => {
@@ -195,6 +211,8 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
       event.target.style.zIndex = "initial";
       document.querySelector(".resizeBtn.moreSpecific").style.height =
         divHeights.resizeDivHeights.noResize + "px";
+      size.width = event.rect.width;
+      size.height = event.rect.height;
     });
   }, []);
 
@@ -216,6 +234,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
               placeholder="Title"
               toolbar={false}
               camouflage={true}
+              onLoad={setTitleEditor}
             />
           </Card.Header>
           <Card.Content>
@@ -224,6 +243,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
               selector={`#${id}-note-body`}
               className="note-body scrolling-container"
               scrollContainer={`#${id}.scrolling-container`}
+              onLoad={setBodyEditor}
             />
           </Card.Content>
         </Suspense>
@@ -255,7 +275,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
                     fluid
                     icon={<Icon name="save" />}
                     labelPosition="left"
-                    onTrigger={() => {}}
+                    onTrigger={handleNoteSave}
                     toast={{
                       title: "Saved!",
                       description: "Saved Successfully",
