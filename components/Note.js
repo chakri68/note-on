@@ -84,6 +84,7 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
   ssr: false,
 });
 
+const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
   let divHeights = {
     resizeDivHeights: { noResize: 30, duringResize: 50 },
     deleteDivHeights: { noDelete: 25, duringDelete: 30 },
