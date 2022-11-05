@@ -126,6 +126,16 @@ const Note = React.memo(function MemoNote({ id }) {
     interactable.on("dragend", (event) => {
       event.target.style.zIndex = "initial";
     });
+    interactable.on("resizestart", (event) => {
+      event.target.style.zIndex = "initial";
+      document.querySelector(".resizeBtn.moreSpecific").style.height =
+        divHeights.resizeDivHeights.duringResize + "px";
+    });
+    interactable.on("resizeend", (event) => {
+      event.target.style.zIndex = "initial";
+      document.querySelector(".resizeBtn.moreSpecific").style.height =
+        divHeights.resizeDivHeights.noResize + "px";
+    });
   }, []);
 
   return (
