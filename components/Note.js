@@ -93,18 +93,12 @@ const AbsoluteContainer = styled(Container, {
   height: "fit-content",
 });
 
-const HoverCard = styled(Card, {
-  position: "absolute !important",
-  width: "fit-content",
-  height: "fit-content",
-});
-
 const DynamicEditor = dynamic(() => import("./QuillEditor"), {
   ssr: false,
 });
 
-const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
-  let editorContent = useRef({});
+const Note = React.memo(function MemoNote({ id, onDelete, onSave, initState }) {
+  let editorContent = useRef({ ...initState?.editor });
   let pvSave = useRef({});
 
   function setTitleEditor(quillInstance) {
@@ -118,6 +112,22 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
     resizeDivHeights: { noResize: 30, duringResize: 50 },
     deleteDivHeights: { noDelete: 25, duringDelete: 30 },
   };
+
+  let position = useRef({
+    x: initState?.positions?.x || 0,
+    y: initState?.positions?.y || 0,
+  });
+  let size = useRef({
+    width: initState?.positions?.width || 0,
+    height: initState?.positions?.height || 0,
+  });
+
+  const HoverCard = styled(Card, {
+    position: "absolute !important",
+    width: size.current.width || "fit-content",
+    height: size.current.height || "fit-content",
+    transform: `translate(${position.current.x}px, ${position.current.y}px)`,
+  });
 
   const ResizeBtn = styled("div", {
     "&.resizeBtn.moreSpecific": {
@@ -137,9 +147,6 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
 
   let noteElement = useRef();
 
-  let position = { x: 0, y: 0 };
-  let size = { width: 0, height: 0 };
-
   function handleDelete() {
     onDelete(id);
   }
@@ -151,8 +158,8 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
         body: editorContent.current.body.getContents(),
       },
       positions: {
-        ...position,
-        ...size,
+        ...position.current,
+        ...size.current,
       },
     };
   }
@@ -162,7 +169,6 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
   }
 
   async function handleNoteSave() {
-    console.log("SAVE");
     await onSave(
       {
         editor: {
@@ -170,8 +176,8 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
           body: editorContent.current.body.getContents(),
         },
         positions: {
-          ...position,
-          ...size,
+          ...position.current,
+          ...size.current,
         },
       },
       id
@@ -193,9 +199,9 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
         listeners: {
           move(event) {
             event.target.style.zIndex = "999";
-            position.x += event.dx;
-            position.y += event.dy;
-            event.target.style.transform = `translate(${position.x}px, ${position.y}px)`;
+            position.current.x += event.dx;
+            position.current.y += event.dy;
+            event.target.style.transform = `translate(${position.current.x}px, ${position.current.y}px)`;
           },
         },
       })
@@ -203,7 +209,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
         edges: { top: false, left: true, bottom: true, right: true },
         listeners: {
           move: function (event) {
-            let { x, y } = position;
+            let { x, y } = position.current;
 
             x = (parseFloat(x) || 0) + event.deltaRect.left;
             y = (parseFloat(y) || 0) + event.deltaRect.top;
@@ -214,7 +220,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
               transform: `translate(${x}px, ${y}px)`,
             });
 
-            Object.assign(position, { x, y });
+            Object.assign(position.current, { x, y });
           },
         },
       });
@@ -230,8 +236,8 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
       event.target.style.zIndex = "initial";
       document.querySelector(".resizeBtn.moreSpecific").style.height =
         divHeights.resizeDivHeights.noResize + "px";
-      size.width = event.rect.width;
-      size.height = event.rect.height;
+      size.current.width = event.rect.width;
+      size.current.height = event.rect.height;
     });
   }, []);
 
@@ -254,6 +260,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
               toolbar={false}
               camouflage={true}
               onLoad={setTitleEditor}
+              initDelta={initState?.editor.title}
             />
           </Card.Header>
           <Card.Content>
@@ -263,6 +270,7 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
               className="note-body scrolling-container"
               scrollContainer={`#${id}.scrolling-container`}
               onLoad={setBodyEditor}
+              initDelta={initState?.editor.body}
             />
           </Card.Content>
         </Suspense>

@@ -1,5 +1,5 @@
 import { styled } from "@stitches/react";
-import Quill from "quill";
+import Quill, { Delta } from "quill";
 import { useEffect, useRef } from "react";
 
 const CamoQuillWrapper = styled("div", {
@@ -23,6 +23,7 @@ export default function QuillEditor({
   camouflage = false,
   selector,
   onLoad,
+  initDelta = {},
   ...props
 }) {
   const quillEditor = useRef(null);
@@ -37,6 +38,7 @@ export default function QuillEditor({
           toolbar: toolbar,
         },
       });
+      if (initDelta) quillEditor.current.setContents(initDelta);
       onLoad(quillEditor.current);
     }
   }, [placeholder, readOnly, selector, theme, toolbar]);
