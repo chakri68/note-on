@@ -22,6 +22,7 @@ export default function QuillEditor({
   className,
   camouflage = false,
   selector,
+  onLoad,
   ...props
 }) {
   const quillEditor = useRef(null);
@@ -36,6 +37,7 @@ export default function QuillEditor({
           toolbar: toolbar,
         },
       });
+      onLoad(quillEditor.current);
     }
   }, [placeholder, readOnly, selector, theme, toolbar]);
   return camouflage ? (
