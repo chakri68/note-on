@@ -4,7 +4,6 @@ import NotesToolbar from "./NotesToolbar";
 import styles from "./NotesManager.module.css";
 
 export default function NotesManager() {
-  let objectsLength = useRef(0);
   let [notes, setNotes] = useState([]);
   function addNote() {
     setNotes(notes.concat({ id: `note-${notes.length}` }));
@@ -15,15 +14,18 @@ export default function NotesManager() {
   }
   return (
     <div className={`notes-manager ${styles.notesManager}`}>
-      <NotesToolbar
-        handleAddNote={addNote}
-        onDelete={(id) => console.log({ id })}
-        onSave={(id) => {
-          console.log({ id });
-        }}
-      />
+      <NotesToolbar handleAddNote={addNote} />
       {notes.map((note) => {
-        return <Note key={note.id} id={note.id} />;
+        return (
+          <Note
+            key={note.id}
+            id={note.id}
+            onDelete={deleteNote}
+            onSave={(id) => {
+              console.log({ id });
+            }}
+          />
+        );
       })}
     </div>
   );
