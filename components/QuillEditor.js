@@ -2,6 +2,16 @@ import { styled } from "@stitches/react";
 import Quill from "quill";
 import { useEffect, useRef } from "react";
 
+const CamoQuillWrapper = styled("div", {
+  border: "none !important",
+  ":focus": {
+    border: "1px solid #ccc !important",
+  },
+});
+const QuillWrapper = styled("div", {
+  border: "1px solid #ccc !important",
+});
+
 export default function QuillEditor({
   toolbar = true,
   placeholder = "Type Something...",
@@ -15,16 +25,6 @@ export default function QuillEditor({
   ...props
 }) {
   const quillEditor = useRef(null);
-
-  const CamoQuillWrapper = styled("div", {
-    border: "none !important",
-    ":focus": {
-      border: "1px solid #ccc !important",
-    },
-  });
-  const QuillWrapper = styled("div", {
-    border: "1px solid #ccc !important",
-  });
 
   useEffect(() => {
     if (quillEditor.current == null) {
