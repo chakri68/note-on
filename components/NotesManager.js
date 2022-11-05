@@ -5,8 +5,9 @@ import styles from "./NotesManager.module.css";
 
 export default function NotesManager() {
   let [notes, setNotes] = useState([]);
+  let noOfNotes = useRef(0);
   function addNote() {
-    setNotes(notes.concat({ id: `note-${notes.length}` }));
+    setNotes(notes.concat({ id: `note-${++noOfNotes.current}` }));
   }
   function deleteNote(id) {
     let newNotes = notes.filter(({ id: noteId }) => noteId != id);
