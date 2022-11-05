@@ -118,6 +118,12 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
       .draggable({
         preventDefault: "always",
         allowFrom: `.moveBar`,
+        modifiers: [
+          interact.modifiers.restrictRect({
+            restriction: "parent",
+            endOnly: true,
+          }),
+        ],
         inertia: true,
         listeners: {
           move(event) {
