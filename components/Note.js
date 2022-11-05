@@ -84,7 +84,27 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
   ssr: false,
 });
 
-const Note = React.memo(function MemoNote({ id }) {
+  let divHeights = {
+    resizeDivHeights: { noResize: 30, duringResize: 50 },
+    deleteDivHeights: { noDelete: 25, duringDelete: 30 },
+  };
+
+  const ResizeBtn = styled("div", {
+    "&.resizeBtn.moreSpecific": {
+      borderRadius: "50% !important",
+      transform: "translate(50%, 50%)",
+      height: divHeights.resizeDivHeights.noResize + "px",
+      aspectRatio: 1,
+      position: "absolute",
+      bottom: 0,
+      right: 0,
+      zIndex: 2,
+      transition: "height 100ms",
+      objectFit: "cover",
+      objectPosition: "center",
+    },
+  });
+
   let noteElement = useRef();
 
   let position = { x: 0, y: 0 };
