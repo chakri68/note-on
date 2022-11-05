@@ -113,6 +113,20 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave }) {
 
   let position = { x: 0, y: 0 };
 
+  function handleDelete() {
+    onDelete(id);
+  }
+
+  async function handleNoteSave() {
+    await onSave(id);
+    // setIconName("check");
+    // setSaveBtnText("Saved..");
+    // setTimeout(() => {
+    //   setIconName("save");
+    //   setSaveBtnText("Save");
+    // }, 2000);
+  }
+
   useEffect(() => {
     let interactable = interact(`#${id}`)
       .draggable({
