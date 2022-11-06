@@ -4,8 +4,10 @@
 
 ### Features to be implemented
 
-- Option to save the notes
-- Option to delete the notes
+- ✅ Option to save the notes
+- ✅ Option to delete the notes
+- ✅ Functional Undo Btn after save
+- ✅ Restore the notes
 - Connect to a database and allow saving notes
 - Auth using github oAuth
 - Allow creation of gists from the notes
