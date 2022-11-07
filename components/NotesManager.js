@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import Note from "./Note";
+import { Note } from "./Note";
 import NotesToolbar from "./NotesToolbar";
 import styles from "./NotesManager.module.css";
 import { getFromStorage, storeToStorage } from "../public/scripts/Utils";

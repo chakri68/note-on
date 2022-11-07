@@ -97,7 +97,11 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
   ssr: false,
 });
 
-const Note = React.memo(function MemoNote({ id, onDelete, onSave, initState }) {
+function checkProps(prevProps, nextProps) {
+  return prevProps.id === nextProps.id;
+}
+
+export function NonMemoNote({ id, onDelete, onSave, initState }) {
   let editorContent = useRef({ ...initState?.editor });
   let pvSave = useRef({});
 
@@ -338,6 +342,6 @@ const Note = React.memo(function MemoNote({ id, onDelete, onSave, initState }) {
       </RelativeContainer>
     </HoverCard>
   );
-});
+}
 
-export default Note;
+export const Note = React.memo(NonMemoNote, checkProps);
