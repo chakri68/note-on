@@ -32,10 +32,14 @@ export default function NotesManager() {
   useEffect(() => {
     // Restore if possible
     let newNotes = [];
+    let newSaveObj = {};
     saveObj.current = getFromStorage("saveObj") || {};
     Object.keys(saveObj.current).map((noteId, ind) => {
+      newSaveObj[`note-${ind}`] = saveObj.current[noteId];
       newNotes.push({ id: `note-${ind}`, state: saveObj.current[noteId] });
     });
+    storeToStorage("saveObj", newSaveObj);
+    saveObj.current = newSaveObj;
     setNotes(newNotes);
     noOfNotes.current = newNotes.length;
   }, []);
