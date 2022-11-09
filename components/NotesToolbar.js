@@ -9,6 +9,7 @@ import {
   TextAlignRightIcon,
   FontBoldIcon,
   PlusIcon,
+  UploadIcon,
   FontItalicIcon,
 } from "@radix-ui/react-icons";
 import * as ToolbarPrimitive from "@radix-ui/react-toolbar";
@@ -103,6 +104,12 @@ const StyledToggleItem = styled(ToolbarPrimitive.ToggleItem, {
   },
 });
 
+const StyledGroup = styled("div", {
+  display: "grid",
+  gridAutoFlow: "column",
+  columnGap: "8px",
+});
+
 // Exports
 export const Toolbar = StyledToolbar;
 export const ToolbarButton = StyledButton;
@@ -111,7 +118,7 @@ export const ToolbarLink = StyledLink;
 export const ToolbarToggleGroup = StyledToggleGroup;
 export const ToolbarToggleItem = StyledToggleItem;
 
-const NotesToolbar = ({ handleAddNote }) => {
+const NotesToolbar = ({ handleAddNote, signIn, signOut, authenticated }) => {
   let position = { x: 0, y: 0 };
   useEffect(() => {
     interact("#notes-toolbar").draggable({
@@ -127,15 +134,51 @@ const NotesToolbar = ({ handleAddNote }) => {
   }, []);
   return (
     <Toolbar aria-label="Notes Toolbar" id="notes-toolbar">
-      <ToolbarButton aria-label="New Note" onClick={handleAddNote}>
-        <PlusIcon />
-      </ToolbarButton>
+      <StyledGroup>
+        <ToolbarButton aria-label="New Note" onClick={handleAddNote}>
+          <PlusIcon />
+        </ToolbarButton>
+        {authenticated ? (
+          <ToolbarButton aria-label="Cloud Save" onClick={() => {}}>
+            <UploadIcon />
+          </ToolbarButton>
+        ) : (
+          ""
+        )}
+      </StyledGroup>
       <ToolbarSeparator />
-      <ToolbarButton css={{ marginLeft: "auto" }}>
-        <Link href="/help" style={{ color: "inherit" }}>
-          Help
-        </Link>
-      </ToolbarButton>
+      <StyledGroup css={{ marginLeft: "auto" }}>
+        <ToolbarButton>
+          <Link href="/help" style={{ color: "inherit" }}>
+            Help
+          </Link>
+        </ToolbarButton>
+        {authenticated ? (
+          <ToolbarButton>
+            <Link
+              href="/api/auth/signout"
+              style={{ color: "inherit" }}
+              onClick={() => {
+                signOut();
+              }}
+            >
+              Sign Out
+            </Link>
+          </ToolbarButton>
+        ) : (
+          <ToolbarButton>
+            <Link
+              href="/api/auth/signin"
+              style={{ color: "inherit" }}
+              onClick={() => {
+                signIn();
+              }}
+            >
+              Sign In
+            </Link>
+          </ToolbarButton>
+        )}
+      </StyledGroup>
     </Toolbar>
   );
 };

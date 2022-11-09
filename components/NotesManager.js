@@ -5,7 +5,7 @@ import styles from "./NotesManager.module.css";
 import { getFromStorage, storeToStorage } from "../public/scripts/Utils";
 import useNote from "./hooks/useNote";
 
-export default function NotesManager() {
+export default function NotesManager({ signIn, signOut, authenticated }) {
   let {
     noteIds,
     setNoteIds,
@@ -54,7 +54,12 @@ export default function NotesManager() {
   }, []);
   return (
     <div className={`notes-manager ${styles.notesManager}`}>
-      <NotesToolbar handleAddNote={addNote} />
+      <NotesToolbar
+        handleAddNote={addNote}
+        signIn={signIn}
+        signOut={signOut}
+        authenticated={authenticated}
+      />
       {Object.keys(notesRef.current).map((noteId, ind) => {
         return (
           <Note
