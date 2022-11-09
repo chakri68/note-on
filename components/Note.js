@@ -3,13 +3,14 @@
 
 import interact from "interactjs";
 import React from "react";
-import { useEffect, useRef, Suspense, useState } from "react";
+import { useEffect, useRef, Suspense, useImperativeHandle } from "react";
 import { Button, Card, Container, Grid, Icon } from "semantic-ui-react";
 import dynamic from "next/dynamic";
 import { createStitches } from "@stitches/react";
 import Modal from "./Modal";
 import PopupMenu from "./PopupMenu";
 import Notification from "./Toast";
+import { NotesContext } from "./NotesManager";
 
 const { styled, css } = createStitches({
   media: {
@@ -98,18 +99,48 @@ const DynamicEditor = dynamic(() => import("./QuillEditor"), {
 });
 
 function checkProps(prevProps, nextProps) {
+  console.log({
+    prev: prevProps.id,
+    next: nextProps.id,
+    rerender: !(prevProps.id === nextProps.id),
+  });
   return prevProps.id === nextProps.id;
 }
 
-export function NonMemoNote({ id, onDelete, onSave, initState }) {
-  let editorContent = useRef({ ...initState?.editor });
+export const NonMemoNote = React.forwardRef(function NonRefNote(
+  { id, onDelete, onSave, initState },
+  ref
+) {
+  useImperativeHandle(ref, () => ({
+    getState() {
+      return {
+        editor: {
+          title: currSave.current.editor.title.getContents(),
+          body: currSave.current.editor.body.getContents(),
+        },
+        interactObj: { ...currSave.current.interactObj },
+      };
+    },
+  }));
+  let currSave = useRef(
+    initState
+      ? initState
+      : {
+          editor: {},
+          interactObj: {
+            size: { width: 0, height: 0 },
+            positions: { x: 0, y: 0 },
+          },
+        }
+  );
+  console.log({ [id]: currSave.current, initState });
   let pvSave = useRef({});
 
   function setTitleEditor(quillInstance) {
-    editorContent.current["title"] = quillInstance;
+    currSave.current.editor["title"] = quillInstance;
   }
   function setBodyEditor(quillInstance) {
-    editorContent.current["body"] = quillInstance;
+    currSave.current.editor["body"] = quillInstance;
   }
 
   let divHeights = {
@@ -117,20 +148,24 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
     deleteDivHeights: { noDelete: 25, duringDelete: 30 },
   };
 
-  let position = useRef({
-    x: initState?.positions?.x || 0,
-    y: initState?.positions?.y || 0,
-  });
-  let size = useRef({
-    width: initState?.positions?.width || 0,
-    height: initState?.positions?.height || 0,
-  });
+  // let position = useRef({
+  //   x: initState?.positions?.x || 0,
+  //   y: initState?.positions?.y || 0,
+  // });
+  // let size = useRef({
+  //   width: initState?.positions?.width || 0,
+  //   height: initState?.positions?.height || 0,
+  // });
 
   const HoverCard = styled(Card, {
     position: "absolute !important",
-    width: size.current.width || "fit-content",
-    height: size.current.height || "fit-content",
-    transform: `translate(${position.current.x}px, ${position.current.y}px)`,
+    width: currSave.current.interactObj.size?.width
+      ? `${currSave.current.interactObj.size?.width}px !important`
+      : "fit-content",
+    height: currSave.current.interactObj.size?.height
+      ? `${currSave.current.interactObj.size?.height}px !important`
+      : "fit-content",
+    transform: `translate(${currSave.current.interactObj.positions?.x}px, ${currSave.current.interactObj.positions?.y}px)`,
   });
 
   const ResizeBtn = styled("div", {
@@ -158,34 +193,26 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
   function handlePvSave() {
     pvSave.current = {
       editor: {
-        title: editorContent.current.title.getContents(),
-        body: editorContent.current.body.getContents(),
+        title: currSave.current.editor.title.getContents(),
+        body: currSave.current.editor.body.getContents(),
       },
-      positions: {
-        ...position.current,
-        ...size.current,
+      interactObj: {
+        positions: {
+          ...currSave.current.interactObj.positions,
+        },
+        size: {
+          ...currSave.current.interactObj.size,
+        },
       },
     };
   }
 
   async function handleUndo() {
-    await onSave(pvSave.current, id);
+    await onSave(id, pvSave.current);
   }
 
   async function handleNoteSave() {
-    await onSave(
-      {
-        editor: {
-          title: editorContent.current.title.getContents(),
-          body: editorContent.current.body.getContents(),
-        },
-        positions: {
-          ...position.current,
-          ...size.current,
-        },
-      },
-      id
-    );
+    await onSave(id);
   }
 
   useEffect(() => {
@@ -203,9 +230,9 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
         listeners: {
           move(event) {
             event.target.style.zIndex = "999";
-            position.current.x += event.dx;
-            position.current.y += event.dy;
-            event.target.style.transform = `translate(${position.current.x}px, ${position.current.y}px)`;
+            currSave.current.interactObj.positions.x += event.dx;
+            currSave.current.interactObj.positions.y += event.dy;
+            event.target.style.transform = `translate(${currSave.current.interactObj.positions.x}px, ${currSave.current.interactObj.positions.y}px)`;
           },
         },
       })
@@ -213,7 +240,7 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
         edges: { top: false, left: true, bottom: true, right: true },
         listeners: {
           move: function (event) {
-            let { x, y } = position.current;
+            let { x, y } = currSave.current.interactObj.positions;
 
             x = (parseFloat(x) || 0) + event.deltaRect.left;
             y = (parseFloat(y) || 0) + event.deltaRect.top;
@@ -224,7 +251,7 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
               transform: `translate(${x}px, ${y}px)`,
             });
 
-            Object.assign(position.current, { x, y });
+            Object.assign(currSave.current.interactObj.positions, { x, y });
           },
         },
       });
@@ -240,8 +267,8 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
       event.target.style.zIndex = "initial";
       document.querySelector(".resizeBtn.moreSpecific").style.height =
         divHeights.resizeDivHeights.noResize + "px";
-      size.current.width = event.rect.width;
-      size.current.height = event.rect.height;
+      currSave.current.interactObj.size.width = event.rect.width;
+      currSave.current.interactObj.size.height = event.rect.height;
     });
   }, []);
 
@@ -264,7 +291,7 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
               toolbar={false}
               camouflage={true}
               onLoad={setTitleEditor}
-              initDelta={initState?.editor.title}
+              initDelta={currSave.current.editor.title}
             />
           </Card.Header>
           <Card.Content>
@@ -274,7 +301,7 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
               className="note-body scrolling-container"
               scrollContainer={`#${id}.scrolling-container`}
               onLoad={setBodyEditor}
-              initDelta={initState?.editor.body}
+              initDelta={currSave.current.editor.body}
             />
           </Card.Content>
         </Suspense>
@@ -342,6 +369,6 @@ export function NonMemoNote({ id, onDelete, onSave, initState }) {
       </RelativeContainer>
     </HoverCard>
   );
-}
+});
 
 export const Note = React.memo(NonMemoNote, checkProps);

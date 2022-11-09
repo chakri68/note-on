@@ -3,57 +3,66 @@ import { Note } from "./Note";
 import NotesToolbar from "./NotesToolbar";
 import styles from "./NotesManager.module.css";
 import { getFromStorage, storeToStorage } from "../public/scripts/Utils";
+import useNote from "./hooks/useNote";
 
 export default function NotesManager() {
-  let [notes, setNotes] = useState([]);
+  let {
+    noteIds,
+    setNoteIds,
+    notesRef,
+    addNote,
+    deleteNote,
+    getAllNotes,
+    getNote,
+  } = useNote();
   let saveObj = useRef(null);
-  let noOfNotes = useRef(0);
-  function checkSaveObjRef() {
-    if (!saveObj.current) {
-      saveObj.current =
-        localStorage.setItem("saveObj", JSON.stringify({})) || {};
-    }
-  }
-  function addNote() {
-    setNotes(notes.concat({ id: `note-${noOfNotes.current++}` }));
-  }
-  function deleteNote(id) {
-    checkSaveObjRef();
-    let newNotes = notes.filter(({ id: noteId }) => noteId != id);
-    setNotes(newNotes);
-    delete saveObj.current[id];
+  // function checkSaveObjRef() {
+  //   if (!saveObj.current) {
+  //     saveObj.current =
+  //       localStorage.setItem("saveObj", JSON.stringify({})) || {};
+  //   }
+  // }
+  function deleteNoteLocal(id) {
+    // checkSaveObjRef();
     storeToStorage("saveObj", saveObj.current);
   }
-  function saveNote(editorContent, id) {
-    checkSaveObjRef();
-    saveObj.current[id] = editorContent;
+  function saveNote(id, overrideState = null) {
+    // checkSaveObjRef();
+    if (overrideState != null) saveObj.current[id] = overrideState;
+    else saveObj.current[id] = getNote(id);
+    console.log({ saveObj: saveObj.current });
     storeToStorage("saveObj", saveObj.current);
   }
   useEffect(() => {
     // Restore if possible
     let newNotes = [];
     let newSaveObj = {};
+    let newIdsRef = {};
     saveObj.current = getFromStorage("saveObj") || {};
     Object.keys(saveObj.current).map((noteId, ind) => {
       newSaveObj[`note-${ind}`] = saveObj.current[noteId];
-      newNotes.push({ id: `note-${ind}`, state: saveObj.current[noteId] });
+      newIdsRef[`note-${ind}`] = {};
+      newNotes.push(noteId);
     });
     storeToStorage("saveObj", newSaveObj);
     saveObj.current = newSaveObj;
-    setNotes(newNotes);
-    noOfNotes.current = newNotes.length;
+    // Update RefsObj
+    notesRef.current = newIdsRef;
+    // Rerender
+    setNoteIds(newNotes);
+    console.log({ ls: saveObj.current, notesRef: notesRef.current });
   }, []);
   return (
     <div className={`notes-manager ${styles.notesManager}`}>
-      <NotesToolbar handleAddNote={addNote} />
-      {notes.map((note) => {
+      {Object.keys(notesRef.current).map((noteId, ind) => {
         return (
           <Note
-            initState={note?.state}
-            key={note.id}
-            id={note.id}
-            onDelete={deleteNote}
+            initState={saveObj.current?.[noteId] || null}
+            key={noteId}
+            id={noteId}
+            onDelete={deleteNoteLocal}
             onSave={saveNote}
+            ref={notesRef.current[noteId]}
           />
         );
       })}
