@@ -15,6 +15,12 @@
 - New animations (using framer-js)
 - Add better resize options (increase size on hover)
 - Add hover labels to buttons in tool bar
+- Better page layouts
+- Add popup if there are unsaved notes before leaving the page
+- Add Markdown support
+- More tools in NotesToolbar
+  - Delete all notes
+  - Save all notes
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
