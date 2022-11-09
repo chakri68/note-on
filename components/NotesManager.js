@@ -54,6 +54,7 @@ export default function NotesManager() {
   }, []);
   return (
     <div className={`notes-manager ${styles.notesManager}`}>
+      <NotesToolbar handleAddNote={addNote} />
       {Object.keys(notesRef.current).map((noteId, ind) => {
         return (
           <Note
